@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Proficiency System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <!-- MAIN NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            {% if user.is_authenticated %}
+            <button id="menuToggle" class="menu-btn" aria-label="Menu">☰</button>
+            {% endif %}
+            <span class="brand">Student Proficiency System</span>
+        </div>
+
+        <div class="navbar-right">
+            {% if user.is_authenticated %}
+            <div class="user-badge">
+                <span class="user-name">{{ user.username }}</span>
+                <span class="role-pill">{{ user.profile.role|capfirst }}</span>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">Log Out</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn-auth">Log In</a>
+            <a href="{% url 'signup' %}" class="btn-auth btn-signup">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- DROPDOWN MENU FOR AUTHENTICATED USERS -->
+    {% if user.is_authenticated %}
+    <div id="dropdownMenu" class="dropdown-menu">
+        <a href="{% url 'subject_list' %}">Subjects</a>
+        {% if user.profile.role == 'student' %}
+        <a href="{% url 'my_skills' %}">Avatar</a>
+        <a href="{% url 'task_list' %}">Tasks</a>
+        {% if user.profile.mode == 'professional' %}
+        <a href="{% url 'forum_list' %}">Subject Forums</a>
+        {% endif %}
+        <a href="{% url 'course_forum_list' %}">Course Forums</a>
+        {% else %}
+        <a href="{% url 'student_directory' %}">Students</a>
+        <a href="{% url 'course_forum_list' %}">Course Forums</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- PROFILE BANNER FOR STUDENTS -->
+    {% if user.is_authenticated and user.profile.role == 'student' %}
+    <div class="profile-banner">
+        <div class="profile-banner-inner">
+            <div class="profile-avatar-circle">{{ user.username|slice:":1"|upper }}</div>
+            <div class="profile-info">
+                <div class="profile-name">{{ user.username }}</div>
+                <div class="profile-line">
+                    {% if user.profile.course %}{{ user.profile.course.name }}{% else %}No course{% endif %}
+                </div>
+                <div class="profile-line">
+                    {% if top_skill %}Top skill: {{ top_skill.skill.name }} (Lv {{ top_skill.level }}){% else %}No skills yet{% endif %}
+                </div>
+                <div class="profile-line">
+                    {% if user.profile.mode == 'personal' %}Personal Account{% else %}Professional Account{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- REMINDER BAR -->
+    {% if reminder_count %}
+    <div class="reminder-bar">
+        <a href="{% url 'task_list' %}" class="reminder-btn">⚠ {{ reminder_count }} item{{ reminder_count|pluralize }} due soon</a>
+    </div>
+    {% endif %}
+
+    <!-- MAIN PAGE CONTENT CONTAINER -->
+    <main class="page">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- SCRIPT FOR MENU TOGGLE -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        if (menuToggle && dropdownMenu) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('open');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('open');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

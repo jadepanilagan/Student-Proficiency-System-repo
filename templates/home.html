@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-card">
+    <div class="dashboard-header">
+        <h2>Welcome, {{ user.username }}!</h2>
+    </div>
+
+    <div class="profile-info-grid">
+        <div class="info-card">
+            <span class="info-label">Role: </span>
+            <span class="info-value role-badge">{{ user.profile.role|capfirst }}</span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Account Mode: </span>
+            <span class="info-value">{{ user.profile.mode|default:"N/A"|capfirst }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

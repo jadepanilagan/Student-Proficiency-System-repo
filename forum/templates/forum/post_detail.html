@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="content-frame">
+
+    <div class="post-header">
+        <span class="post-author">{{ post.author.username }}</span>
+        <div class="post-actions">
+            <form method="post" action="{% url 'toggle_bookmark' post.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="post-action-link">{% if is_bookmarked %}Bookmarked{% else %}Bookmark
+                    {%endif %}</button>
+            </form>
+            <a href="{% url 'report_post' post.id %}" class="post-action-link post-action-report">Report</a>
+            {% if post.author == user %}
+            <a href="{% url 'delete_post' post.id %}" class="post-action-link post-action-report">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <p class="post-body">{{ post.text }}</p>
+
+    <form method="post" class="comment-compose">
+        {% csrf_token %}
+        {{ form.text }}
+        <button type="submit">Post</button>
+    </form>
+
+    <h3 class="dossier-section-title">Comments</h3>
+
+    <div class="comment-list">
+        {% for answer in post.answers.all %}
+        <div class="comment-item">
+            <div class="comment-meta">
+                <span class="comment-author">{{ answer.author.username }}</span>
+                <span class="comment-date">{{ answer.created_at|date:"M d" }}</span>
+                {% if answer.author == user %}
+                <form method="post" action="{% url 'delete_answer' answer.id %}"
+                    style="display:inline; margin-left:auto;">
+                    {% csrf_token %}
+                    <button type="submit" class="post-action-link post-action-report"
+                        style="font-size:0.78rem;">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            <p class="comment-text">{{ answer.text }}</p>
+        </div>
+        {% empty %}
+        <p class="muted-note">No comments yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="subjects-container">
+    <div class="subjects-header">
+        <h2>Subjects</h2>
+        {% if user.profile.is_manager %}
+        <a href="{% url 'add_subject' %}" class="btn-add-subject">+ Add Subject</a>
+        {% endif %}
+    </div>
+
+    <ul class="subject-list">
+        {% for item in subject_data %}
+        <li>
+            <a href="{% url 'lesson_plan_view' item.subject.id %}" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">{{ item.subject.name }}</div>
+                    <div class="subject-card-teacher">Teacher: {{ item.subject.teacher.username }}</div>
+                </div>
+                {% if item.due_count %}
+                <span class="subject-card-badge">{{ item.due_count }}</span>
+                {% endif %}
+            </a>
+        </li>
+        {% empty %}
+        <li class="empty-state-card">
+            <p class="muted-note">No subjects available yet.</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

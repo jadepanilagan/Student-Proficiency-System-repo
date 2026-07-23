@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Evaluate: {{ submission.student.username }}</h2>
+<div class="content-frame">
+
+    {% if submission.image %}
+    <p><img src="{{ submission.image.url }}" class="submission-img"></p>
+    {% endif %}
+    {% if submission.document %}
+    <p><a href="{{ submission.document.url }}">View submitted document</a></p>
+    {% endif %}
+    {% if not submission.image and not submission.document %}
+    <p class="muted-note">No files attached.</p>
+    {% endif %}
+
+    <h3 class="dossier-section-title">Skill Points Awarded</h3>
+    <ul class="ruled-list">
+        {% for award in submission.skill_awards.all %}
+        <li>{{ award.skill.name }} <span class="dossier-eval-score">+{{ award.points }}</span></li>
+        {% empty %}
+        <li class="muted-note">None yet.</li>
+        {% endfor %}
+    </ul>
+
+    <form method="post" class="custom-form" style="margin-top:1.5rem;">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Add Skill Points</button>
+        </div>
+    </form>
+
+    {% if not submission.evaluated %}
+    <p style="margin-top:1rem;"><a href="{% url 'finish_evaluation' submission.id %}" class="btn-secondary">Mark as
+            Fully Evaluated</a></p>
+    {% endif %}
+
+</div>
+{% endblock %}
